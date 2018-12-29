@@ -22,34 +22,32 @@ public class ArchiveCheckUtils {
      * @return
      * @throws java.io.UnsupportedEncodingException
      */
-    public List<TProjectDO> commonList(JSONObject obj, SendApiconfig sendApiconfig) throws java.io.UnsupportedEncodingException {
+    public List<TProjectDO> postGetFile(JSONObject obj, SendApiconfig sendApiconfig) throws java.io.UnsupportedEncodingException {
         List<TProjectDO> projectAll = new ArrayList<>();
         // 访问Python接口,获取所有扫描的文件
         JSONObject jsonObject = JSONObject.parseObject(sendApiconfig.getPython(obj));
-        String data = jsonObject.get("data").toString();
+        String data = jsonObject.get("data").toString().replace("\\\\\\\\", "/").
+                replace("\"", "").replace("\\\\", "/");
         String[] file = dataSplit(data);
-        TProjectDO projectDO;
-        // 用来保存截取后的项目名与文件名
-        String proFile;
-        // 项目名
-        String proName;
-        // 文件名
-        String fileName;
-        // 文件路径
-        String filePath;
+        TProjectDO projectDO = null;
+        String proName; // 项目名
+        String fileName; // 文件名
+        String filePath; // 文件路径
+        int flag = 0; // 以第二个 / 作为标记，但不包括自己
+        int flag1 = 0; // 以第一个 / 作为标记，但不包括自己
+        int lastFlag = 0; // 以最后一个 / 作为标记，但不包括自己
         for (String f : file) {
+            flag = f.indexOf("/", f.indexOf("/") + 1);
+            flag1 = f.indexOf("/") + 1;
+            lastFlag = f.lastIndexOf("/") + 1;
             projectDO = new TProjectDO();
-            proFile = f.substring(f.indexOf("\\\\", f.indexOf("\\\\") + 1) + 2, f.length() - 1);
-            proName = proFile.substring(0, proFile.indexOf("\\\\"));
-            filePath = proFile.substring(proFile.indexOf("\\\\") + 2);
-            fileName = proFile.substring(proFile.lastIndexOf("\\\\") + 2);
+            proName = f.substring(flag1, flag);
+            filePath = f.substring(flag + 1);
+            fileName = f.substring(lastFlag);
             projectDO.setProName(proName);
-            if (getStrCount(proFile, "\\") == 2) {
-                projectDO.setPath(proName + "/" + fileName);
-            } else {
-                projectDO.setPath(proName + "/" + filePath.replace("\\\\", "/"));
-            }
             projectDO.setFileName(fileName);
+            projectDO.setPath(proName + "/" + filePath);
+            projectDO.setState("1");// 1 用来给bootStart table判断的，用来设置复选框
             projectAll.add(projectDO);
         }
         return projectAll;
@@ -72,13 +70,13 @@ public class ArchiveCheckUtils {
     }
 
     /**
-     * 只获取data的数据
+     * 去[]
      *
-     * @param data 后台传递的数据
+     * @param data
      * @return
      */
     public String[] dataSplit(String data) {
-        String subFile = data.substring(data.indexOf("[") + 1, data.indexOf("]"));
+        String subFile = data.substring(1, data.length() - 1);
         String[] file = subFile.split(",");
         return file;
     }

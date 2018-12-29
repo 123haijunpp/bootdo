@@ -11,48 +11,41 @@
         <div class="ibox">
             <div class="ibox-body">
                 <div class="fixed-table-toolbar">
-                    <div class="columns pull-left">
+                    <div class="columns pull-left" th:hidden="hidden" id="pull_left">
                         <button type="button" class="btn  btn-primary"
                                 onclick="add()">
                             <i class="fa fa-plus" aria-hidden="true"></i>保存
                         </button>
+                        <button type="button" class="btn  btn-primary" id="is_all_btn" onclick="checkAll()">
+                            全选
+                        </button>
+                        <span id="sp" hidden="hidden">
+                        <button type="button" class="btn  btn-primary" id="selectNone"
+                                onclick="selectNone()">
+                            全不选
+                        </button>
+                        </span>
+                        <button type="button" class="btn  btn-primary"
+                                onclick="archived()">
+                            已归档
+                        </button>
+                        <button type="button"
+                                class="btn  btn-danger"
+                                onclick="open_source()">
+                            已开源
+                        </button>
                     </div>
                     <div class="columns pull-right">
-                        <button class="btn btn-success" onclick="reLoad()">查询</button>
+                        <button class="btn btn-success" onclick="load()">扫描</button>
                     </div>
                     <div class="columns pull-right col-md-2 nopadding">
+                        <!--请输入要扫描的路径：-->
                         <input id="searchName" type="text" class="form-control"
-                               placeholder="">
+                               placeholder="请输入要扫描的路径...">
                     </div>
                 </div>
                 <form>
                     <table id="exampleTable" data-mobile-responsive="true">
-                        <tr>
-                            <th>项目名/编号</th>
-                            <th>文件名</th>
-                            <th>路径</th>
-                            <th th:if="${session.check_role eq '研发经理'}">是否开源</th>
-                            <th th:if="${session.check_role eq '项目管理部'}">是否归档</th>
-                        </tr>
-                        <tr th:each=" project : ${projects}">
-                            <td th:text="${project.proName}" name="tname"></td>
-                            <td th:text="${project.fileName}" name="tname"></td>
-                            <td th:text="${project.path}" name="tname"></td>
-                            <td th:if="${session.check_role eq '项目管理部'}">
-                                <input type="checkbox" name="is_archive" th:value="2"/>
-                            </td>
-                            <td th:if="${session.check_role eq '研发经理'}">
-                                <input type="checkbox" name="is_open" th:value="1"/>
-                            </td>
-                            <span th:each=" expro : ${exists}">
-                                <!-- 如果已经存在则选中复选框，并禁用 -->
-                                <div th:if="${project.proName eq expro.proName}"
-                                     th:if="${project.path eq expro.path}">
-                                    <td hidden="hidden"><input type="checkbox" disabled="disabled"
-                                                               hidden="hidden"/> </td>
-                                        </div>
-                            </span>
-                        </tr>
                     </table>
                 </form>
             </div>
@@ -62,24 +55,19 @@
 <!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案 -->
 <div>
     <script type="text/javascript">
-        var s_edit_h = 'hidden';
-        var s_remove_h = 'hidden';
+        var open = 'hidden';
+        var archives = 'hidden';
         var s_resetPwd_h = 'hidden';
     </script>
 </div>
-<div shiro:hasPermission="archiveCheck:tProject:edit">
+<div shiro:hasPermission="archiveCheck:tProject:openSource">
     <script type="text/javascript">
-        s_edit_h = '';
+        opens = '';
     </script>
 </div>
-<div shiro:hasPermission="archiveCheck:tProject:remove">
+<div shiro:hasPermission="archiveCheck:tProject:archiveSource">
     <script type="text/javascript">
-        var s_remove_h = '';
-    </script>
-</div>
-<div shiro:hasPermission="archiveCheck:tProject:resetPwd">
-    <script type="text/javascript">
-        var s_resetPwd_h = '';
+        var archives = '';
     </script>
 </div>
 </div>

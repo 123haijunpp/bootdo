@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bootdo.common.utils.PageUtils;
 import com.bootdo.common.utils.R;
 import com.xd.archiveCheck.domain.TProjectDO;
 import com.xd.archiveCheck.service.TProjectService;
@@ -40,49 +41,44 @@ public class TProjectController {
     private SendApiconfig sendApiconfig;
 
 
+    /**
+     * 跳转到归档检查页面
+     *
+     * @param request
+     * @return
+     */
     @GetMapping(value = {"/doArchiveCheck"})
-    public String list(HttpServletRequest request) throws UnsupportedEncodingException {
+    public String doArchiveCheck(HttpServletRequest request) {
+        request.getSession().setAttribute("check_role", "研发经理");
+        return prefix + "/tProject";
+    }
+
+    @GetMapping(value = {"/listArchiveCheck"})
+    @ResponseBody
+    JSONObject listArchiveCheck(@RequestParam("path") String path) throws UnsupportedEncodingException {
+        // 将路径中的\ 替换为 \\ 便于后台解析
+        path = path.replace("\\", "\\\\");
         Map<String, Object> params = new HashMap<>(16);
         ArchiveCheckUtils utils = new ArchiveCheckUtils();
-        params.put("rootDir", "D:\\ScanTest");
+        params.put("rootDir", path);
         JSONObject postData = new JSONObject();
         postData.put("code", "scan_001");
         postData.put("params", params);
-        List<TProjectDO> projectAll = utils.commonList(postData, sendApiconfig);
+        List<TProjectDO> projectAll = utils.postGetFile(postData, sendApiconfig);
 
         JSONObject postData1 = new JSONObject();
         postData1.put("code", "scan_004");
         postData1.put("params", params);
-        JSONObject jsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
-        String data = jsonData.get("data").toString();
+        JSONObject postJsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
+        String data = postJsonData.get("data").toString();
         List<TProjectDO> existsAll = JSONArray.parseArray(data, TProjectDO.class);
 
-        List<TProjectDO> lista = new ArrayList<>();//构建projectAll的副本
-        TProjectDO projectAlls = null;
-        for (TProjectDO projectDO : projectAll) {
-            projectAlls = new TProjectDO();
-            projectAlls.setPath(projectDO.getPath());
-            projectAlls.setProName(projectDO.getProName());
-            lista.add(projectAlls);
-        }
-        List<TProjectDO> listb = new ArrayList<TProjectDO>();//构建existsAll的副本1
-        TProjectDO projectAlld = null;
-        for (TProjectDO projectDO : existsAll) {
-            projectAlld = new TProjectDO();
-            projectAlld.setPath(projectDO.getPath());
-            projectAlld.setProName(projectDO.getProName());
-            listb.add(projectAlld);
-        }
-
-        lista.retainAll(listb);
-        System.out.println(lista);
-        System.out.println(listb);
-
-
-        request.getSession().setAttribute("check_role", "研发经理");
-        request.setAttribute("projects", projectAll);
-        request.setAttribute("exists", existsAll);
-        return prefix + "/tProject";
+        // 响应到客户端
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("total", projectAll.size());
+        jsonData.put("rows", projectAll);
+//        PageUtils pageUtils = new PageUtils(projectAll, projectAll.size());
+        return jsonData;
     }
 
 
@@ -95,24 +91,38 @@ public class TProjectController {
     }
 
     /**
-     * 保存
+     * 保存文件
      */
     @ResponseBody
-    @PostMapping(value = "/save", consumes = {"application/json"})
+    @PostMapping(value = "/save")
     public R save(@RequestBody String path) {
-        path = path.replace("\"", "");
+        /*
+            path:Python27/bz2.pyd/Python27/DLLs/bz2.pyd/1,Python27/py.ico/Python27/DLLs/py.ico/1
+         */
         List<TProjectDO> list = new ArrayList<>();
         TProjectDO project = null;
-//        将请求的归档资源分割
+        String proName; // 项目名
+        String fileName; // 文件名
+        String state = null; // 状态
+        String location = null; //文件的位置
+        int flag = 0; // 从第一个 / 作为标记，但不包括自己
+        int flag2 = 0; // 从第二个 / 作为标记，但不包括自己
+        //  将要保存的归档资源分割
         String[] split = path.split(",");
         for (String s : split) {
+            flag = s.indexOf("/");
+            flag2 = s.indexOf("/", flag + 1);
             project = new TProjectDO();
-            String pro_name = s.substring(0, s.indexOf("/"));
-            String file_name = s.substring(s.indexOf("/") + 1, s.length() - 2);
-            String state = s.substring(s.length() - 1);
-            project.setProName(pro_name);
-            project.setFileName(file_name);
+
+            proName = s.substring(0, flag);
+            location = s.substring(flag2 + 1, s.lastIndexOf("/"));
+            fileName = s.substring(flag + 1, flag2);
+            state = s.substring(s.length() - 1);
+
+            project.setProName(proName);
+            project.setFileName(fileName);
             project.setState(state);
+            project.setPath(location);
             list.add(project);
         }
         JSONObject postData = new JSONObject();
@@ -150,14 +160,10 @@ public class TProjectController {
         String subFile = data.substring(data.indexOf("[") + 1, data.indexOf("]"));
         String[] file = subFile.split("-");
         TProjectDO projectDO = null;
-        // 项目名
-        String proName = null;
-        // 文件名
-        String fileName = null;
-        // 状态
-        String condition = null;
-        // 文件路径
-        String filePath = null;
+        String proName = null;// 项目名
+        String fileName = null;// 文件名
+        String condition = null;// 状态
+        String filePath = null;// 文件路径
         for (String f : file) {
             condition = f.substring(0, 1);
             filePath = f.substring(f.indexOf("/", f.indexOf("/") + 1) + 1);
