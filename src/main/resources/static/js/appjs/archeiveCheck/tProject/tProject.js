@@ -249,7 +249,7 @@ function dbLoad(state) {
                 // 返回false将会终止请求
                 columns: [
                     {
-                        checkbox: true
+                        // checkbox: true
                     },
                     {
                         field: 'proName',
