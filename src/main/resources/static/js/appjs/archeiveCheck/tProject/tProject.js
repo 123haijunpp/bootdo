@@ -1,5 +1,4 @@
 var prefix = "/archiveCheck/tProject"
-var state = "1";
 $(function () {
 
 });
@@ -274,7 +273,7 @@ function dbLoad(state) {
 function archived() {
     // 在初始化table之前，要将table销毁，否则会保留上次加载的内容
     $("#exampleTable").bootstrapTable('destroy');
-    dbLoad(state);
+    dbLoad(1);
 }
 
 /**
@@ -284,5 +283,5 @@ function open_source() {
     state = "2";
     // 在初始化table之前，要将table销毁，否则会保留上次加载的内容
     $("#exampleTable").bootstrapTable('destroy');
-    dbLoad(state);
+    dbLoad(2);
 }
