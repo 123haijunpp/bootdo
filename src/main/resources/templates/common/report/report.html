@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:text="${report.title}">report.html</title>
+	<link rel="shortcut icon" href="favicon.ico">
+	<link href="css/bootstrap.min.css?v=3.3.6"
+		  th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+	<link href="/css/font-awesome.css?v=4.4.0"
+		  th:href="@{/css/font-awesome.css?v=4.4.0}" rel="stylesheet">
+	<link href="/css/plugins/bootstrap-table/bootstrap-table.min.css"
+		  th:href="@{/css/plugins/bootstrap-table/bootstrap-table.min.css}"
+		  rel="stylesheet">
+	<link href="/css/plugins/jsTree/style.min.css" rel="stylesheet">
+	<link href="/css/plugins/jqTreeGrid/jquery.treegrid.css"
+		  rel="stylesheet">
+	<!--summernote css -->
+	<link href="/css/plugins/summernote/summernote-0.8.8.css"
+		  rel="stylesheet">
+	<link href="css/animate.css" th:href="@{/css/animate.css}"
+		  rel="stylesheet">
+	<link href="/css/plugins/chosen/chosen.css" rel="stylesheet">
+	<link href="/css/style.css?v=4.1.0" th:href="@{/css/style.css?v=4.1.0}"
+		  rel="stylesheet">
+	<link rel="stylesheet" href="/select2/css/select2.min.css">
+	<link rel="stylesheet" href="/select2/css/select2-bootstrap.min.css">
+	<link href="/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+	<!--下拉框-->
+	<link rel="stylesheet" href="/js/plugins/bootstrap-select/dist/css/bootstrap-select.css" />
+	<!--数据表格-->
+	<link href="/js/plugins/data-table/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+	<link href="/js/plugins/data-table/extensions/Responsive/css/responsive.bootstrap.min.css" rel="stylesheet" />
+	<!--双日历-->
+	<link rel="stylesheet" href="/js/plugins/daterangepicker/daterangepicker.css"/>
+</head>
+
+<body>
+	<div class="row search-panel">
+		<div class="col-sm-12">
+			<form class="form-inline" id="search-form" th:action="${action}">
+				<!-- 表单验证 -->
+				<div class="message-container alert alert-danger">
+                    <ul></ul>
+                </div>
+				<div th:each="filter : ${report.filters}"
+					 th:if="${filter.ui_type != 'NONE'}"
+					class="form-group mh-sm">
+					<!-- 标签 -->
+					<label class="control-label" th:for="${filter.name}"
+						th:text="${filter.ui_label + '：'}"></label>
+					<!-- 输入框 -->
+					<input th:if="${filter.ui_type == 'INPUT'}"
+						class="bootstrap-select form-control input-text-width"
+						th:id="${filter.name}"
+						th:name="${filter.name}"
+						th:value="${filter.default_value}"
+						th:required="${filter.is_required == 1}" type="text">
+					<!-- 下拉选择框 -->
+					<select th:if="${filter.ui_type == 'SELECT'}"
+						th:id="${filter.name}"
+						th:name="${filter.name}"
+						th:required="${filter.is_required == 1}" 
+						class="form-control selectpicker" data-size="8" title="请选择">
+						<option value="">请选择</option>
+						<option th:each="option : ${filter.options}"
+							th:value="${option.value}" th:text="${option.name}"
+                            th:selected="${option.selected}">名称</option>
+					</select>
+					<!-- 双日历控件 -->
+					<input th:if="${filter.ui_type == 'DATE_RANGE'}"
+						class="form-control date-picker"
+						th:id="${filter.name}" 
+						th:value="${filter.default_value}"
+						th:required="${filter.is_required == 1}"  type="text" />
+						 
+					<input
+						th:if="${filter.ui_type == 'DATE_RANGE'}"
+						type="text" th:id="${filter.name + '1'}"
+						th:name="${filter.name + '1'}"
+						th:value="${filter.getString('val1')}" style="display:none;" /> 
+						
+					<input
+						th:if="${filter.ui_type == 'DATE_RANGE'}"
+						type="text" th:id="${filter.name + '2'}"
+						th:name="${filter.name + '2'}"
+						th:value="${filter.getString('val2')}" style="display:none;" />
+				</div>
+				<div class="form-group mh-sm mb-xs">
+	                <button class="btn btn-darker-1 mr-xs" type="submit">
+	                <i class="i icon12"></i> 查询</button>
+	                <button class="btn btn-success mr-xs" onclick="form_export()" type="button">
+	                <i class="i icon13"></i> 导出</button>
+	                <button class="btn btn-wide mr-xs" onclick="form_reset()" type="button">
+	                <i class="i icon14"></i> 重置</button>
+	            </div>
+			</form>
+		</div>
+	</div>
+	<div class="row data-panel">
+		<div class="col-sm-12">
+			<div class="table-responsive">
+				<table id="datatable"
+					class="data-table table table-striped nowrap table-hover table-bordered"
+					cellspacing="0" width="100%">
+					<thead>
+						<tr>
+							<th th:each="header : ${report.headers}"
+								th:if="${header.hide != 1}"
+								th:text="${header.title}" 
+								th:styleappend="${header.column_width}? 'min-width: ' + ${header.column_width} + 'px' : ''"></th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script src="/js/jquery.min.js?v=2.1.4"></script>
+	<script src="/js/bootstrap.min.js?v=3.3.6"></script>
+	<!-- COOKIE插件	 -->
+	<script src="/js/plugins/jquery-cookie/jquery.cookie.js" type="text/javascript"></script>
+    <!--下拉框-->
+	<script type="text/javascript" src="/js/plugins/bootstrap-select/dist/js/bootstrap-select.js"></script>
+	<script type="text/javascript" src="/js/plugins/bootstrap-select/dist/js/i18n/defaults-zh_CN.js"></script>
+	<!-- 数据表格 -->
+	<script src="/js/plugins/data-table/media/js/jquery.dataTables.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/data-table/media/js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/data-table/extensions/Responsive/js/dataTables.responsive.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/data-table/extensions/Responsive/js/responsive.bootstrap.min.js" type="text/javascript"></script>
+
+    <!--双日历控件-->
+	<script type="text/javascript" src="/js/plugins/daterangepicker/moment.js"></script>
+	<script type="text/javascript" src="/js/plugins/daterangepicker/daterangepicker.zh-CN.js"></script>
+	<script type="text/javascript" src="/js/plugins/daterangepicker/daterangepicker.js"></script>
+	<!--通知弹窗-->
+	<!--<script src="/helsinki/vendor/pnotify/pnotify.custom.js" type="text/javascript"></script>-->
+
+	<script type="text/javascript" th:inline="javascript">
+    	var filters = [[${report.filters}]];
+    	
+		function sel_change(){
+	    	var name = $(this).attr('name');
+
+			for(var i in filters){
+				var filter = filters[i]
+				if( filter.pname == name){
+					sel_refresh(filter)
+				}				
+			}
+		}
+		
+		function sel_refresh(filter){
+			var p_val = $('#' + filter.pname).val()
+			
+			data = {}
+			data[filter.pname] = p_val;
+			
+			$.getJSON({
+				url: '/report/{0}/filter/{1}/options'.format(filter.report_id, filter.Id),
+				data: data,
+				success: function(result){
+					$("#" + filter.name +" option").remove();
+					$("#" + filter.name).append("<option value='0'>请选择</option>");
+
+					$.each(result, function(i, option){
+						$("#" + filter.name).append(
+							"<option value="+option.value+">"
+								+ option.name + "</option>");
+					});
+					
+			    	$("#" + filter.name).selectpicker('refresh');
+				},
+				error: function(XMLResponse){
+					alert(XMLResponse.responseText);
+				}
+			});
+		}
+		
+		String.prototype.format = function () {
+		    var values = arguments;
+		    return this.replace(/\{(\d+)\}/g, function (match, index) {
+		        if (values.length > index) {
+		            return values[index];
+		        } else {
+		            return "";
+		        }
+		    });
+		};
+		
+		$(function() {
+			/* 提示框相关 */
+			// PNotify.prototype.options.styling = "fontawesome";
+			
+			/* 下拉框 */
+	    	$('.selectpicker').selectpicker({});
+	    	
+	    	$('select').change(sel_change);
+        });
+	</script>
+	<script type="text/javascript" th:each="filter : ${report.filters}" th:if="${filter.ui_type == 'DATE_RANGE'}" th:inline="javascript"
+		th:with="filter_name=${#strings.replace(filter.name, '.', '\.')}" >
+		$(function() {
+			/* 双日历控件 */
+	    	$([[${'#' + filter_name}]]).daterangepicker(null, function (start, end, label) { // 格式化日期显示框
+	            $([[${'#' + filter_name + '1'}]]).val(start.format('YYYY-MM-DD'));
+	            $([[${'#' + filter_name + '2'}]]).val(end.format('YYYY-MM-DD'));
+	        });
+        });
+	</script>
+	<script type="text/javascript" th:inline="javascript">
+        function form_export(){
+        	window.location = [[${export_url}]]
+        }
+        
+        function form_reset(){
+        	$('#search-form input').val('');
+        	$('#search-form select').val('');
+        	$('.selectpicker').selectpicker('refresh');
+        }
+	</script>	
+	<script type="text/javascript" th:inline="javascript">
+		$(function() {
+			//jQuery.Datatables屏蔽alert错误警告
+			// $.fn.dataTable.ext.errMode = 'none';
+		
+			$("#datatable").DataTable({
+				language: {
+				    "sProcessing":   "处理中...",
+				    "sLengthMenu":   "显示 _MENU_ 项结果",
+				    "sZeroRecords":  "没有匹配结果",
+				    "sInfo":         "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+				    "sInfoEmpty":    "显示第 0 至 0 项结果，共 0 项",
+				    "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+				    "sInfoPostFix":  "",
+				    "sSearch":       "搜索:",
+				    "sUrl":          "",
+				    "sEmptyTable":     "表中数据为空",
+				    "sLoadingRecords": "载入中...",
+				    "sInfoThousands":  ",",
+				    "oPaginate": {
+				        "sFirst":    "首页",
+				        "sPrevious": "上页",
+				        "sNext":     "下页",
+				        "sLast":     "末页"
+				    },
+				    "oAria": {
+				        "sSortAscending":  ": 以升序排列此列",
+				        "sSortDescending": ": 以降序排列此列"
+				    }
+				},
+				processing : true, 	//打开数据加载时的等待效果
+				serverSide : true,	//打开后台分页
+				ordering : false,	//是否启用排序
+				searching : false,	//是否  启用模糊搜索
+				paging : [[${report.paging}? true: false ]],
+				scrollX: true,
+				ajax: {
+			        url: [[${url}]],
+			        dataSrc: 'data'
+			    },
+				columns: [[${columns}]],
+				deferRender: true,
+				lengthMenu: [ 10, 20, 50, 100 ],
+				pageLength: $.cookie('pageLength')
+			});
+			
+			$("#datatable").on( 'length.dt', function ( e, settings, len ) {
+				$.cookie('pageLength', len);
+			});
+			
+			$("#datatable").on( 'error.dt', function ( e, settings, techNote, message ){
+                if( window.parent != window){
+	                window.parent.PNotify_Error('获取数据失败', message);                
+                }else{
+	                new PNotify({
+	                    title: '获取数据失败',
+	                    text: message,
+	                    type: 'error'
+	                });
+                }
+			});
+		});
+	</script>
+	<br />	
+	<br />	
+</body>
+</html>

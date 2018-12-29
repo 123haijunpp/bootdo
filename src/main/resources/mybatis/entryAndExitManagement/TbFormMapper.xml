@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xd.entryAndExitManagement.dao.TbFormDao">
+
+
+	<select id="get" resultType="com.xd.entryAndExitManagement.domain.TbFormDO">
+		select `Id`,`user_id`,`xm`,`id_type`,`id_no`,`form_type`,`telephone`,`form_date`,`form_date_num`,`meeting_date`,`hall_id`,`hall_name`,`data`,`upload_user`,`upload_date`,`sync`,`sync_time`,`print`,`print_time`,`exam`,`exam_time`,`deal`,`deal_time`,`reason`,`status`,`cancel_time`,`district` from tb_form where Id = #{value}
+	</select>
+
+	<select id="list" resultType="com.xd.entryAndExitManagement.domain.TbFormDO">
+		select `Id`,`user_id`,`xm`,`id_type`,`id_no`,`form_type`,`telephone`,`form_date`,`form_date_num`,`meeting_date`,`hall_id`,`hall_name`,`data`,`upload_user`,`upload_date`,`sync`,`sync_time`,`print`,`print_time`,`exam`,`exam_time`,`deal`,`deal_time`,`reason`,`status`,`cancel_time`,`district` from tb_form
+		<where>
+			<if test="id != null and id != ''"> and Id = #{id} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="xm != null and xm != ''"> and xm = #{xm} </if>
+			<if test="idType != null and idType != ''"> and id_type = #{idType} </if>
+			<if test="idNo != null and idNo != ''"> and id_no = #{idNo} </if>
+			<if test="formType != null and formType != ''"> and form_type = #{formType} </if>
+			<if test="telephone != null and telephone != ''"> and telephone = #{telephone} </if>
+			<if test="formDate != null and formDate != ''"> and form_date = #{formDate} </if>
+			<if test="formDateNum != null and formDateNum != ''"> and form_date_num = #{formDateNum} </if>
+			<if test="meetingDate != null and meetingDate != ''"> and meeting_date = #{meetingDate} </if>
+			<if test="hallId != null and hallId != ''"> and hall_id = #{hallId} </if>
+			<if test="hallName != null and hallName != ''"> and hall_name = #{hallName} </if>
+			<if test="data != null and data != ''"> and data = #{data} </if>
+			<if test="uploadUser != null and uploadUser != ''"> and upload_user = #{uploadUser} </if>
+			<if test="uploadDate != null and uploadDate != ''"> and upload_date = #{uploadDate} </if>
+			<if test="sync != null and sync != ''"> and sync = #{sync} </if>
+			<if test="syncTime != null and syncTime != ''"> and sync_time = #{syncTime} </if>
+			<if test="print != null and print != ''"> and print = #{print} </if>
+			<if test="printTime != null and printTime != ''"> and print_time = #{printTime} </if>
+			<if test="exam != null and exam != ''"> and exam = #{exam} </if>
+			<if test="examTime != null and examTime != ''"> and exam_time = #{examTime} </if>
+			<if test="deal != null and deal != ''"> and deal = #{deal} </if>
+			<if test="dealTime != null and dealTime != ''"> and deal_time = #{dealTime} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="cancelTime != null and cancelTime != ''"> and cancel_time = #{cancelTime} </if>
+			<if test="district != null and district != ''"> and district LIKE #{district} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by Id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from tb_form
+		<where>
+			<if test="id != null and id != ''"> and Id = #{id} </if>
+			<if test="userId != null and userId != ''"> and user_id = #{userId} </if>
+			<if test="xm != null and xm != ''"> and xm = #{xm} </if>
+			<if test="idType != null and idType != ''"> and id_type = #{idType} </if>
+			<if test="idNo != null and idNo != ''"> and id_no = #{idNo} </if>
+			<if test="formType != null and formType != ''"> and form_type = #{formType} </if>
+			<if test="telephone != null and telephone != ''"> and telephone = #{telephone} </if>
+			<if test="formDate != null and formDate != ''"> and form_date = #{formDate} </if>
+			<if test="formDateNum != null and formDateNum != ''"> and form_date_num = #{formDateNum} </if>
+			<if test="meetingDate != null and meetingDate != ''"> and meeting_date = #{meetingDate} </if>
+			<if test="hallId != null and hallId != ''"> and hall_id = #{hallId} </if>
+			<if test="hallName != null and hallName != ''"> and hall_name = #{hallName} </if>
+			<if test="data != null and data != ''"> and data = #{data} </if>
+			<if test="uploadUser != null and uploadUser != ''"> and upload_user = #{uploadUser} </if>
+			<if test="uploadDate != null and uploadDate != ''"> and upload_date = #{uploadDate} </if>
+			<if test="sync != null and sync != ''"> and sync = #{sync} </if>
+			<if test="syncTime != null and syncTime != ''"> and sync_time = #{syncTime} </if>
+			<if test="print != null and print != ''"> and print = #{print} </if>
+			<if test="printTime != null and printTime != ''"> and print_time = #{printTime} </if>
+			<if test="exam != null and exam != ''"> and exam = #{exam} </if>
+			<if test="examTime != null and examTime != ''"> and exam_time = #{examTime} </if>
+			<if test="deal != null and deal != ''"> and deal = #{deal} </if>
+			<if test="dealTime != null and dealTime != ''"> and deal_time = #{dealTime} </if>
+			<if test="reason != null and reason != ''"> and reason = #{reason} </if>
+			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="cancelTime != null and cancelTime != ''"> and cancel_time = #{cancelTime} </if>
+			<if test="district != null and district != ''"> and district LIKE #{district} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.xd.entryAndExitManagement.domain.TbFormDO" useGeneratedKeys="true" keyProperty="id">
+		insert into tb_form
+		(
+		`user_id`,
+		`xm`,
+		`id_type`,
+		`id_no`,
+		`form_type`,
+		`telephone`,
+		`form_date`,
+		`form_date_num`,
+		`meeting_date`,
+		`hall_id`,
+		`hall_name`,
+		`data`,
+		`upload_user`,
+		`upload_date`,
+		`sync`,
+		`sync_time`,
+		`print`,
+		`print_time`,
+		`exam`,
+		`exam_time`,
+		`deal`,
+		`deal_time`,
+		`reason`,
+		`status`,
+		`cancel_time`,
+		`district`
+		)
+		values
+		(
+		#{userId},
+		#{xm},
+		#{idType},
+		#{idNo},
+		#{formType},
+		#{telephone},
+		#{formDate},
+		#{formDateNum},
+		#{meetingDate},
+		#{hallId},
+		#{hallName},
+		#{data},
+		#{uploadUser},
+		#{uploadDate},
+		#{sync},
+		#{syncTime},
+		#{print},
+		#{printTime},
+		#{exam},
+		#{examTime},
+		#{deal},
+		#{dealTime},
+		#{reason},
+		#{status},
+		#{cancelTime},
+		#{district}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.xd.entryAndExitManagement.domain.TbFormDO">
+		update tb_form
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="xm != null">`xm` = #{xm}, </if>
+			<if test="idType != null">`id_type` = #{idType}, </if>
+			<if test="idNo != null">`id_no` = #{idNo}, </if>
+			<if test="formType != null">`form_type` = #{formType}, </if>
+			<if test="telephone != null">`telephone` = #{telephone}, </if>
+			<if test="formDate != null">`form_date` = #{formDate}, </if>
+			<if test="formDateNum != null">`form_date_num` = #{formDateNum}, </if>
+			<if test="meetingDate != null">`meeting_date` = #{meetingDate}, </if>
+			<if test="hallId != null">`hall_id` = #{hallId}, </if>
+			<if test="hallName != null">`hall_name` = #{hallName}, </if>
+			<if test="data != null">`data` = #{data}, </if>
+			<if test="uploadUser != null">`upload_user` = #{uploadUser}, </if>
+			<if test="uploadDate != null">`upload_date` = #{uploadDate}, </if>
+			<if test="sync != null">`sync` = #{sync}, </if>
+			<if test="syncTime != null">`sync_time` = #{syncTime}, </if>
+			<if test="print != null">`print` = #{print}, </if>
+			<if test="printTime != null">`print_time` = #{printTime}, </if>
+			<if test="exam != null">`exam` = #{exam}, </if>
+			<if test="examTime != null">`exam_time` = #{examTime}, </if>
+			<if test="deal != null">`deal` = #{deal}, </if>
+			<if test="dealTime != null">`deal_time` = #{dealTime}, </if>
+			<if test="reason != null">`reason` = #{reason}, </if>
+			<if test="status != null">`status` = #{status}, </if>
+			<if test="cancelTime != null">`cancel_time` = #{cancelTime}, </if>
+			<if test="district != null">`district` = #{district}</if>
+		</set>
+		where Id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from tb_form where Id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from tb_form where Id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<select id="listReservation" resultType="com.xd.entryAndExitManagement.domain.ReservationDO">
+		SELECT
+		t0.Id,t0.`name` hallname,count(*) reservationsum,t0.address,(
+		SELECT
+		count(*)
+		FROM
+		`tb_form` t3
+		WHERE
+		print = '1'
+		AND t3.hall_id=t0.Id
+		GROUP BY hall_id) printedcount
+		FROM
+		tb_hall t0
+		LEFT JOIN tb_form t1
+		ON t1.hall_id = t0.Id
+		<if test="name != null and name != ''"> WHERE t0.name LIKE #{name} </if>
+
+		GROUP BY
+		hall_id
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="listReservationData" resultType="com.xd.entryAndExitManagement.domain.ReservationDO">
+		SELECT t1.`name` hallname,count(*) reservationsum,t1.address,
+		date(form_date) AS dday
+		FROM
+		`tb_form` t0
+		LEFT JOIN tb_hall t1
+		ON t0.hall_id = t1.Id
+		WHERE
+		hall_id = #{hall_id}
+		GROUP BY
+		dday
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="listReservationDataCount" resultType="int">
+		SELECT count(*) from (
+		SELECT t1.`name` hall_name,count(*) reservationsum,t1.address,
+		date(form_date) AS dday
+		FROM
+		`tb_form` t0
+		LEFT JOIN tb_hall t1
+		ON t0.hall_id = t1.Id
+		WHERE
+		hall_id = #{hall_id}
+		GROUP BY
+		dday) t
+	</select>
+</mapper>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content ">
+    <div class="col-sm-12">
+        <div class="ibox">
+            <div class="ibox-body">
+                <div class="fixed-table-toolbar">
+                    <div class="columns pull-left">
+                        <button type="button" class="btn  btn-primary"
+                                onclick="add()">
+                            <i class="fa fa-plus" aria-hidden="true"></i>保存
+                        </button>
+                    </div>
+                    <div class="columns pull-right">
+                        <button class="btn btn-success" onclick="reLoad()">查询</button>
+                    </div>
+                    <div class="columns pull-right col-md-2 nopadding">
+                        <input id="searchName" type="text" class="form-control"
+                               placeholder="">
+                    </div>
+                </div>
+                <form>
+                    <table id="exampleTable" data-mobile-responsive="true">
+                        <tr>
+                            <th>项目名/编号</th>
+                            <th>文件名</th>
+                            <th>路径</th>
+                            <th th:if="${session.check_role eq '研发经理'}">是否开源</th>
+                            <th th:if="${session.check_role eq '项目管理部'}">是否归档</th>
+                        </tr>
+                        <tr th:each=" project : ${projects}">
+                            <td th:text="${project.proName}" name="tname"></td>
+                            <td th:text="${project.fileName}" name="tname"></td>
+                            <td th:text="${project.path}" name="tname"></td>
+                            <td th:if="${session.check_role eq '项目管理部'}">
+                                <input type="checkbox" name="is_archive" th:value="2"/>
+                            </td>
+                            <td th:if="${session.check_role eq '研发经理'}">
+                                <input type="checkbox" name="is_open" th:value="1"/>
+                            </td>
+                            <span th:each=" expro : ${exists}">
+                                <!-- 如果已经存在则选中复选框，并禁用 -->
+                                <div th:if="${project.proName eq expro.proName}"
+                                     th:if="${project.path eq expro.path}">
+                                    <td hidden="hidden"><input type="checkbox" disabled="disabled"
+                                                               hidden="hidden"/> </td>
+                                        </div>
+                            </span>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案 -->
+<div>
+    <script type="text/javascript">
+        var s_edit_h = 'hidden';
+        var s_remove_h = 'hidden';
+        var s_resetPwd_h = 'hidden';
+    </script>
+</div>
+<div shiro:hasPermission="archiveCheck:tProject:edit">
+    <script type="text/javascript">
+        s_edit_h = '';
+    </script>
+</div>
+<div shiro:hasPermission="archiveCheck:tProject:remove">
+    <script type="text/javascript">
+        var s_remove_h = '';
+    </script>
+</div>
+<div shiro:hasPermission="archiveCheck:tProject:resetPwd">
+    <script type="text/javascript">
+        var s_resetPwd_h = '';
+    </script>
+</div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/appjs/archeiveCheck/tProject/tProject.js"></script>
+</body>
+</html>

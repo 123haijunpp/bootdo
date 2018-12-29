@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">用户编号：</label>
+								<div class="col-sm-8">
+									<input id="userId" name="userId" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">填表用户姓名：</label>
+								<div class="col-sm-8">
+									<input id="xm" name="xm" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">证件类型：</label>
+								<div class="col-sm-8">
+									<input id="idType" name="idType" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">证件号码：</label>
+								<div class="col-sm-8">
+									<input id="idNo" name="idNo" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">表单类型：</label>
+								<div class="col-sm-8">
+									<input id="formType" name="formType" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">联系电话：</label>
+								<div class="col-sm-8">
+									<input id="telephone" name="telephone" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">填表时间：</label>
+								<div class="col-sm-8">
+									<input id="formDate" name="formDate" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">预约业务办理时间：</label>
+								<div class="col-sm-8">
+									<input id="meetingDate" name="meetingDate" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">预约服务大厅编号：</label>
+								<div class="col-sm-8">
+									<input id="hallId" name="hallId" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">JSON格式的填表数据：</label>
+								<div class="col-sm-8">
+									<input id="data" name="data" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">录入人：</label>
+								<div class="col-sm-8">
+									<input id="uploadUser" name="uploadUser" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">录入时间：</label>
+								<div class="col-sm-8">
+									<input id="uploadDate" name="uploadDate" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">同步次数（外网->内网）：</label>
+								<div class="col-sm-8">
+									<input id="sync" name="sync" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">最后一次同步的时间：</label>
+								<div class="col-sm-8">
+									<input id="lastSync" name="lastSync" class="form-control" type="text">
+								</div>
+							</div>
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/EntryAndExitManagement/tbForm/add.js">
+	</script>
+</body>
+</html>

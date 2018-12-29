@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xd.common.dao.TbGuideDao">
+
+	<select id="get" resultType="com.xd.common.domain.TbGuideDO">
+		select `Id`,`key`,`filename`,`create_by`,`create_date`,`update_by`,`update_date`,`remarks` from tb_guide where Id = #{value}
+	</select>
+
+	<select id="list" resultType="com.xd.common.domain.TbGuideDO">
+		select `Id`,`key`,`filename`,`create_by`,`create_date`,`update_by`,`update_date`,`remarks` from tb_guide
+        <where>  
+		  		  <if test="id != null and id != ''"> and Id = #{id} </if>
+		  		  <if test="key != null and key != ''"> and key = #{key} </if>
+		  		  <if test="filename != null and filename != ''"> and filename = #{filename} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createDate != null and createDate != ''"> and create_date = #{createDate} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateDate != null and updateDate != ''"> and update_date = #{updateDate} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by Id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from tb_guide
+		 <where>  
+		  		  <if test="id != null and id != ''"> and Id = #{id} </if>
+		  		  <if test="key != null and key != ''"> and key = #{key} </if>
+		  		  <if test="filename != null and filename != ''"> and filename = #{filename} </if>
+		  		  <if test="createBy != null and createBy != ''"> and create_by = #{createBy} </if>
+		  		  <if test="createDate != null and createDate != ''"> and create_date = #{createDate} </if>
+		  		  <if test="updateBy != null and updateBy != ''"> and update_by = #{updateBy} </if>
+		  		  <if test="updateDate != null and updateDate != ''"> and update_date = #{updateDate} </if>
+		  		  <if test="remarks != null and remarks != ''"> and remarks = #{remarks} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.xd.common.domain.TbGuideDO" useGeneratedKeys="true" keyProperty="id">
+		insert into tb_guide
+		(
+			`key`, 
+			`filename`, 
+			`create_by`, 
+			`create_date`, 
+			`update_by`, 
+			`update_date`, 
+			`remarks`
+		)
+		values
+		(
+			#{key}, 
+			#{filename}, 
+			#{createBy}, 
+			#{createDate}, 
+			#{updateBy}, 
+			#{updateDate}, 
+			#{remarks}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.xd.common.domain.TbGuideDO">
+		update tb_guide 
+		<set>
+			<if test="key != null">`key` = #{key}, </if>
+			<if test="filename != null">`filename` = #{filename}, </if>
+			<if test="createBy != null">`create_by` = #{createBy}, </if>
+			<if test="createDate != null">`create_date` = #{createDate}, </if>
+			<if test="updateBy != null">`update_by` = #{updateBy}, </if>
+			<if test="updateDate != null">`update_date` = #{updateDate}, </if>
+			<if test="remarks != null">`remarks` = #{remarks}</if>
+		</set>
+		where Id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from tb_guide where Id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from tb_guide where Id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

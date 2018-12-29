@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xd.archiveCheck.dao.TProjectDao">
+
+    <select id="get" resultType="com.xd.archiveCheck.domain.TProjectDO">
+		select `id`,`pro_name`,`path`,`remark` from t_project where id = #{value}
+	</select>
+
+    <select id="list" resultType="com.xd.archiveCheck.domain.TProjectDO">
+        select `id`,`pro_name`,`path`,`remark` from t_project
+        <where>
+            <if test="id != null and id != ''">and id = #{id}</if>
+            <if test="proName != null and proName != ''">and pro_name = #{proName}</if>
+            <if test="path != null and path != ''">and path = #{path}</if>
+            <if test="remark != null and remark != ''">and remark = #{remark}</if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from t_project
+        <where>
+            <if test="id != null and id != ''">and id = #{id}</if>
+            <if test="proName != null and proName != ''">and pro_name = #{proName}</if>
+            <if test="path != null and path != ''">and path = #{path}</if>
+            <if test="remark != null and remark != ''">and remark = #{remark}</if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.xd.archiveCheck.domain.TProjectDO" useGeneratedKeys="true" keyProperty="id">
+		insert into t_project
+		(
+			`pro_name`,
+			`path`,
+			`remark`
+		)
+		values
+		(
+			#{proName},
+			#{path},
+			#{remark}
+		)
+	</insert>
+
+    <update id="update" parameterType="com.xd.archiveCheck.domain.TProjectDO">
+        update t_project
+        <set>
+            <if test="proName != null">`pro_name` = #{proName},</if>
+            <if test="path != null">`path` = #{path},</if>
+            <if test="remark != null">`remark` = #{remark}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="remove">
+		delete from t_project where id = #{value}
+	</delete>
+
+    <delete id="batchRemove">
+        delete from t_project where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

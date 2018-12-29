@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xd.archiveCheck.dao.TProFileDao">
+
+    <select id="get" resultType="com.xd.archiveCheck.domain.TProFileDO">
+		select `pro_code`,`f_id` from t_pro_file where pro_code = #{value}
+	</select>
+
+    <select id="list" resultType="com.xd.archiveCheck.domain.TProFileDO">
+        select `pro_code`,`f_id` from t_pro_file
+        <where>
+            <if test="proCode != null and proCode != ''">and pro_code = #{proCode}</if>
+            <if test="fId != null and fId != ''">and f_id = #{fId}</if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by pro_code desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from t_pro_file
+        <where>
+            <if test="proCode != null and proCode != ''">and pro_code = #{proCode}</if>
+            <if test="fId != null and fId != ''">and f_id = #{fId}</if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.xd.archiveCheck.domain.TProFileDO">
+		insert into t_pro_file
+		(
+			`pro_code`,
+			`f_id`
+		)
+		values
+		(
+			#{proCode},
+			#{fId}
+		)
+	</insert>
+
+    <update id="update" parameterType="com.xd.archiveCheck.domain.TProFileDO">
+        update t_pro_file
+        <set>
+            <if test="fId != null">`f_id` = #{fId}</if>
+        </set>
+        where pro_code = #{proCode}
+    </update>
+
+    <delete id="remove">
+		delete from t_pro_file where pro_code = #{value}
+	</delete>
+
+    <delete id="batchRemove">
+        delete from t_pro_file where pro_code in
+        <foreach item="proCode" collection="array" open="(" separator="," close=")">
+            #{proCode}
+        </foreach>
+    </delete>
+
+</mapper>
