@@ -11,29 +11,36 @@
         <div class="ibox">
             <div class="ibox-body">
                 <div class="fixed-table-toolbar">
-                    <div class="columns pull-left" th:hidden="hidden" id="pull_left">
-                        <button type="button" class="btn  btn-primary"
-                                onclick="add()">
+                    <div class="columns pull-left">
+                        <span th:hidden="hidden" id="pull_left">
+                              <button type="button" class="btn  btn-primary"
+                                      onclick="add()">
                             <i class="fa fa-plus" aria-hidden="true"></i>保存
                         </button>
+                        </span>
+
+                        <span id="sp" hidden="hidden">
                         <button type="button" class="btn  btn-primary" id="is_all_btn" onclick="checkAll()">
                             全选
                         </button>
-                        <span id="sp" hidden="hidden">
                         <button type="button" class="btn  btn-primary" id="selectNone"
                                 onclick="selectNone()">
                             全不选
                         </button>
                         </span>
+                        <span id="sp1" hidden="hidden">
                         <button type="button" class="btn  btn-primary"
                                 onclick="archived()">
                             已归档
                         </button>
+                        </span>
+                        <span id="sp2" hidden="hidden">
                         <button type="button"
                                 class="btn  btn-danger"
                                 onclick="open_source()">
                             已开源
                         </button>
+                        </span>
                     </div>
                     <div class="columns pull-right">
                         <button class="btn btn-success" onclick="load()">扫描</button>
@@ -55,7 +62,7 @@
 <!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案 -->
 <div>
     <script type="text/javascript">
-        var open = 'hidden';
+        var opens = 'hidden';
         var archives = 'hidden';
         var s_resetPwd_h = 'hidden';
     </script>

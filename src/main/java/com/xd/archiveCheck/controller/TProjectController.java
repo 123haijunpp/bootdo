@@ -6,7 +6,9 @@ import java.util.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.bootdo.common.utils.PageUtils;
+import com.bootdo.common.utils.Query;
 import com.bootdo.common.utils.R;
+import com.xd.archiveCheck.domain.TProFileDO;
 import com.xd.archiveCheck.domain.TProjectDO;
 import com.xd.archiveCheck.service.TProjectService;
 import com.xd.common.util.SendApiconfig;
@@ -66,12 +68,12 @@ public class TProjectController {
         postData.put("params", params);
         List<TProjectDO> projectAll = utils.postGetFile(postData, sendApiconfig);
 
-        JSONObject postData1 = new JSONObject();
-        postData1.put("code", "scan_004");
-        postData1.put("params", params);
-        JSONObject postJsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
-        String data = postJsonData.get("data").toString();
-        List<TProjectDO> existsAll = JSONArray.parseArray(data, TProjectDO.class);
+//        JSONObject postData1 = new JSONObject();
+//        postData1.put("code", "scan_004");
+//        postData1.put("params", params);
+//        JSONObject postJsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
+//        String data = postJsonData.get("data").toString();
+//        List<TProjectDO> existsAll = JSONArray.parseArray(data, TProjectDO.class);
 
         // 响应到客户端
         JSONObject jsonData = new JSONObject();
@@ -145,15 +147,13 @@ public class TProjectController {
      */
     @GetMapping(value = {"/openSourceList"})
     @ResponseBody
-    JSONObject openSourceList(@RequestParam("state") String state, HttpServletRequest request) throws
+    PageUtils openSourceList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws
             UnsupportedEncodingException {
         List<TProjectDO> list = new ArrayList<>();
         TProjectDO project = null;
-        Map<String, Object> params = new HashMap<>(16);
-        params.put("state", state);
         JSONObject postData = new JSONObject();
         postData.put("code", "scan_003");
-        postData.put("params", params);
+        postData.put("params",params);
         JSONObject jsonObject = JSONObject.parseObject(sendApiconfig.getPython(postData));
         String data = jsonObject.get("data").toString().replace("\"", "").replace(",", "");
         // 将[]截取掉
@@ -176,11 +176,11 @@ public class TProjectController {
             project.setPath(filePath);
             list.add(project);
         }
-        //返回json数据,提供给bootStrap的table控件
-        JSONObject jsonData = new JSONObject();
-        jsonData.put("total", list.size());
-        jsonData.put("rows", list);
-        return jsonData;
+        //查询列表数据
+        Query query = new Query(params);
+        int total = tProjectService.count(query);
+        PageUtils pageUtils = new PageUtils(list, total);
+        return pageUtils;
     }
 
 

@@ -92,29 +92,26 @@ function add() {
     var is_archive = $("[name='is_archive']");
     var content = "";
     // 判断状态
-    var state;
-    // if ($(":checkbox[name=is_archive]:checked").size() != 0) {
-    //     for (var i = 0; i < is_archive.length; i++) {
-    //         // 2 标志是勾选的是否归档
-    //         if (is_archive[i].checked && is_archive[i].value == 2) {
-    //             state = is_archive[i].value;
-    //             // 被选中的复选框的父节点
-    //             var tddata = is_archive[i].parentNode.parentNode;
-    //             // 遍历父节点下所有的字节点td
-    //             $(tddata).find("td").each(function () {
-    //                 // 当td的name等于某值时，获取该td下的内容
-    //                 if (this.getAttribute("name") == "tname") {
-    //                     content += this.innerHTML + "/";
-    //                 }
-    //             });
-    //             content += "--"
-    //         }
-    //     }
-    // } else {
-    //     layer.alert("请至少选择一条记录进行操作！");
-    //     return;
-    // }
-    if ($(":checkbox[name=is_open]:checked").size() != 0) {
+    var state = 0;
+    var is_archive_checked_size = $(":checkbox[name=is_archive]:checked").size();
+    var is_open_checked_size = $(":checkbox[name=is_open]:checked").size();
+    if (is_archive_checked_size && is_open_checked_size == 0) {
+        for (var i = 0; i < is_archive.length; i++) {
+            // 1 标志是勾选的是否开源
+            if (is_archive[i].checked && is_archive[i].value == 2) {
+                state = is_archive[i].value;
+                // 被选中的复选框的父节点
+                var tddata = is_archive[i].parentNode.parentNode.parentNode;
+                // 遍历父节点下所有的字节点td的值
+                $(tddata).find("td").each(function () {
+                    content += this.innerHTML + "/";
+                });
+                content += "--"
+            }
+        }
+    }
+
+    if (is_open_checked_size && is_archive_checked_size == 0) {
         for (var i = 0; i < is_open.length; i++) {
             // 1 标志是勾选的是否开源
             if (is_open[i].checked && is_open[i].value == 1) {
@@ -128,15 +125,19 @@ function add() {
                 content += "--"
             }
         }
+    }
 
-    } else {
-        layer.alert("请至少选择一条记录进行操作！");
+
+    console.log(content);
+    // "",null,undefined
+    if (!$.trim(content)) {
+        layer.alert("请选择要保存的文件！", {icon: 2});
         return;
     }
     var split = content.split("--");
     var json = "";
     var path;
-    /**
+    /*
      * Python27/bz2.pyd/Python27/DLLs/bz2.pyd
      * /<label class="btn btn-primary btn-sm ">
      *     <input type="checkbox" name="is_open" value="1"> 开源 </label>
@@ -154,7 +155,6 @@ function add() {
         path = split[i].substr(0, split[i].indexOf("/<"));
         json += path + "/" + state + ",";
     }
-    // Python27/bz2.pyd/Python27/DLLs/bz2.pyd/1,Python27/py.ico/Python27/DLLs/py.ico/1
     var data_str = json.substr(0, json.length - 1);
     $.ajax({
         type: "POST",
@@ -164,13 +164,13 @@ function add() {
         success: function (data) {
             if (data.code == 0) {
                 layer.alert(data.msg);
-                // reLoad();
             }
         }, error: function () {
             layer.alert(data.msg);
         }
     });
 }
+
 
 /**
  * 全选择
@@ -208,12 +208,13 @@ function reLoad() {
 }
 
 function dbLoad(state) {
+    // 在初始化table之前，要将table销毁，否则会保留上次加载的内容
     $("#exampleTable").bootstrapTable('destroy');
     $('#exampleTable')
         .bootstrapTable(
             {
                 method: 'get', // 服务器数据的请求方式 get or post
-                url: prefix + "/openSourceList?state=" + state, // 服务器数据的加载地址
+                url: prefix + "/openSourceList", // 服务器数据的加载地址
                 //	showRefresh : true,
                 //	showToggle : true,
                 //	showColumns : true,
@@ -236,7 +237,8 @@ function dbLoad(state) {
                     return {
                         //说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
                         limit: params.limit,
-                        offset: params.offset
+                        offset: params.offset,
+                        state: state
                         // name:$('#searchName').val(),
                         // username:$('#searchName').val()
                     };
@@ -248,9 +250,6 @@ function dbLoad(state) {
                 // sortOrder.
                 // 返回false将会终止请求
                 columns: [
-                    {
-                        // checkbox: true
-                    },
                     {
                         field: 'proName',
                         title: '项目名字'
@@ -271,17 +270,13 @@ function dbLoad(state) {
  *  已归档
  */
 function archived() {
-    // 在初始化table之前，要将table销毁，否则会保留上次加载的内容
-    $("#exampleTable").bootstrapTable('destroy');
-    dbLoad(1);
+    dbLoad(2);
+    $("#sp").hide();
 }
 
 /**
  * 已开源
  */
 function open_source() {
-    state = "2";
-    // 在初始化table之前，要将table销毁，否则会保留上次加载的内容
-    $("#exampleTable").bootstrapTable('destroy');
-    dbLoad(2);
+    dbLoad(1);
 }
