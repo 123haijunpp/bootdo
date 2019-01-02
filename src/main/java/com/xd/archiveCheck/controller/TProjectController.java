@@ -3,8 +3,10 @@ package com.xd.archiveCheck.controller;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.bootdo.common.utils.PageUtils;
 import com.bootdo.common.utils.Query;
 import com.bootdo.common.utils.R;
@@ -79,7 +81,6 @@ public class TProjectController {
         JSONObject jsonData = new JSONObject();
         jsonData.put("total", projectAll.size());
         jsonData.put("rows", projectAll);
-//        PageUtils pageUtils = new PageUtils(projectAll, projectAll.size());
         return jsonData;
     }
 
@@ -98,9 +99,6 @@ public class TProjectController {
     @ResponseBody
     @PostMapping(value = "/save")
     public R save(@RequestBody String path) {
-        /*
-            path:Python27/bz2.pyd/Python27/DLLs/bz2.pyd/1,Python27/py.ico/Python27/DLLs/py.ico/1
-         */
         List<TProjectDO> list = new ArrayList<>();
         TProjectDO project = null;
         String proName; // 项目名
@@ -147,40 +145,27 @@ public class TProjectController {
      */
     @GetMapping(value = {"/openSourceList"})
     @ResponseBody
-    PageUtils openSourceList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws
+    JSONObject openSourceList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws
             UnsupportedEncodingException {
-        List<TProjectDO> list = new ArrayList<>();
-        TProjectDO project = null;
+        System.out.println(params.get("offset") + "....." + params.get("limit") + "....." + params.get("state"));
+
+        params.put("page", Integer.valueOf((String) params.get("offset")) + 1);
+        params.put("per_page", params.get("limit"));
+
         JSONObject postData = new JSONObject();
         postData.put("code", "scan_003");
-        postData.put("params",params);
+        postData.put("params", com.alibaba.druid.support.json.JSONUtils.toJSONString(params));
+
         JSONObject jsonObject = JSONObject.parseObject(sendApiconfig.getPython(postData));
-        String data = jsonObject.get("data").toString().replace("\"", "").replace(",", "");
-        // 将[]截取掉
-        String subFile = data.substring(data.indexOf("[") + 1, data.indexOf("]"));
-        String[] file = subFile.split("-");
-        TProjectDO projectDO = null;
-        String proName = null;// 项目名
-        String fileName = null;// 文件名
-        String condition = null;// 状态
-        String filePath = null;// 文件路径
-        for (String f : file) {
-            condition = f.substring(0, 1);
-            filePath = f.substring(f.indexOf("/", f.indexOf("/") + 1) + 1);
-            proName = filePath.substring(0, filePath.indexOf("/"));
-            fileName = filePath.substring(filePath.indexOf("/") + 1);
-            project = new TProjectDO();
-            project.setState(condition);
-            project.setFileName(fileName);
-            project.setProName(proName);
-            project.setPath(filePath);
-            list.add(project);
-        }
-        //查询列表数据
-        Query query = new Query(params);
-        int total = tProjectService.count(query);
-        PageUtils pageUtils = new PageUtils(list, total);
-        return pageUtils;
+        String data = jsonObject.get("data").toString();
+        List<Object> items = JSON.parseObject(JSONObject.parseObject(data).get("items").toString(), new TypeReference<List<Object>>() {
+        });
+        String total = JSONObject.parseObject(data).get("total").toString();
+        //返回json数据,提供给bootStrap的table控件
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("total", Integer.valueOf(total));
+        jsonData.put("rows", items);
+        return jsonData;
     }
 
 

@@ -82,6 +82,10 @@ function load() {
             });
         // 设置保存按钮，选择所有按钮可见
         $("#pull_left").show();
+        $("#sp").show();
+        $("#sp1").show();
+        $("#sp2").show();
+
     }
 }
 
@@ -184,8 +188,8 @@ function checkAll() {
     } else {
         code_Values.checked = true;
     }
-    $("#is_all_btn").hide();
-    $("#sp").show();
+    $("#sp").hide();
+    $("#sp0").show();
 }
 
 //全不
@@ -198,8 +202,8 @@ function selectNone() {
     } else {
         code_Values.checked = false;
     }
-    $("#is_all_btn").show();
-    $("#sp").hide();
+    $("#sp").show();
+    $("#sp0").hide();
 }
 
 
@@ -229,15 +233,15 @@ function dbLoad(state) {
                 // contentType : "application/x-www-form-urlencoded",
                 // //发送到服务器的数据编码类型
                 pageSize: 10, // 如果设置了分页，每页数据条数
-                pageNumber: 1, // 如果设置了分布，首页页码
+                pageNumber: 1, // 如果设置了分页，首页页码
                 //search : true, // 是否显示搜索框
                 showColumns: false, // 是否显示内容下拉框（选择显示的列）
                 sidePagination: "server", // 设置在哪里进行分页，可选值为"client" 或者 "server"
                 queryParams: function (params) {
                     return {
                         //说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
-                        limit: params.limit,
-                        offset: params.offset,
+                        limit: params.limit, //找多少条
+                        offset: params.offset, //从数据库第几条记录开始
                         state: state
                         // name:$('#searchName').val(),
                         // username:$('#searchName').val()
@@ -251,6 +255,10 @@ function dbLoad(state) {
                 // 返回false将会终止请求
                 columns: [
                     {
+                        field: 'id',
+                        title: 'id'
+                    },
+                    {
                         field: 'proName',
                         title: '项目名字'
                     },
@@ -260,6 +268,18 @@ function dbLoad(state) {
                     }, {
                         field: 'fileName',
                         title: '文件名字'
+                    }, {
+                        field: 'state',
+                        title: '状态',
+                        formatter: function (value, row, index) {
+                            var e = "";
+                            if (value == "1") {
+                                e = '已开源';
+                            } else {
+                                e = '已归档';
+                            }
+                            return e;
+                        }
                     }
                 ]
             });
@@ -271,6 +291,8 @@ function dbLoad(state) {
  */
 function archived() {
     dbLoad(2);
+    // 设置保存按钮，选择所有按钮可见
+    $("#pull_left").hide();
     $("#sp").hide();
 }
 
@@ -279,4 +301,6 @@ function archived() {
  */
 function open_source() {
     dbLoad(1);
+    $("#pull_left").hide();
+    $("#sp").hide();
 }
