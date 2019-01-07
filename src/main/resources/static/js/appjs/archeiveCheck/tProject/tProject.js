@@ -1,21 +1,38 @@
 var prefix = "/archiveCheck/tProject"
 $(function () {
+    var select = $("#state");
+    $(".selectpicker").selectpicker({
+        noneSelectedText: '请选择'//默认显示内容
+    });
+    // 数据赋值
+    select.append("<option value='2'> 已归档</option>");
+    select.append("<option value='1'> 已开源</option>");
+
+    //初始化刷新数据
+    $(window).on('load', function () {
+        $('.selectpicker').selectpicker('refresh');
+    });
+
+    $("#state").change(function () {
+        //获取选择的值
+        var state = select.selectpicker('val');
+        dbLoad(state);
+    });
 
 });
 
 function load() {
-    var path = $("#searchName").val();
+    var path = $("#scanName").val();
     // "",null,undefined
     if (!$.trim(path)) {
-        layer.alert("请输入需要扫描的路径!例如：C:\\Windows\\debug");
+        layer.alert("请输入需要扫描的路径!例如：C:\\Windows\\");
         return;
     }
     if ($.trim(path)) {
-        path += "\\"
         // 判断文件夹路径格式是否正确
-        var reg = /^[A-z]:\\(.+?\\)*$/;
+        var reg = /^[A-z]:\\(.*?\\)*$/;
         if (!reg.test(path)) {
-            layer.alert("扫描的路径格式错误!", {icon: 2});
+            layer.alert("扫描的路径格式错误!例如：C:\\Windows\\", {icon: 2});
             return;
         }
         $("#exampleTable").bootstrapTable('destroy');
@@ -46,7 +63,7 @@ function load() {
                         //说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
                         limit: params.limit,
                         offset: params.offset,
-                        path: $('#searchName').val()
+                        path: $('#scanName').val()
                         // username:$('#searchName').val()
                     };
                 },
@@ -81,33 +98,31 @@ function load() {
                 ]
             });
         // 设置保存按钮，选择所有按钮可见
-        $("#pull_left").show();
-        $("#sp").show();
-        $("#sp1").show();
-        $("#sp2").show();
+        $("#pull_left").show(); // 保存
+        $("#sp").show();    // 全选
+        $("#sp1").show();   // 已归档
+        $("#sp2").show();   // 已开源
 
     }
 }
 
 function add() {
-    // 获取是否开源的所有复选框
-    var is_open = $("[name='is_open']");
-    // 获取是否归档的所有复选框
-    var is_archive = $("[name='is_archive']");
+    var attr = $(":checkbox:not(:hidden)").attr("name");
+    // 获取所有复选框
+    var checkboxAll = $("[name=" + attr + "]");
     var content = "";
     // 判断状态
     var state = 0;
-    var is_archive_checked_size = $(":checkbox[name=is_archive]:checked").size();
-    var is_open_checked_size = $(":checkbox[name=is_open]:checked").size();
-    if (is_archive_checked_size && is_open_checked_size == 0) {
-        for (var i = 0; i < is_archive.length; i++) {
+    var size = $(":checkbox[name=" + attr + "]:checked").size();
+    if (size) {
+        for (var i = 0; i < checkboxAll.length; i++) {
             // 1 标志是勾选的是否开源
-            if (is_archive[i].checked && is_archive[i].value == 2) {
-                state = is_archive[i].value;
+            if (checkboxAll[i].checked) {
+                state = checkboxAll[i].value;
                 // 被选中的复选框的父节点
-                var tddata = is_archive[i].parentNode.parentNode.parentNode;
+                var td_data = checkboxAll[i].parentNode.parentNode.parentNode;
                 // 遍历父节点下所有的字节点td的值
-                $(tddata).find("td").each(function () {
+                $(td_data).find("td").each(function () {
                     content += this.innerHTML + "/";
                 });
                 content += "--"
@@ -115,24 +130,6 @@ function add() {
         }
     }
 
-    if (is_open_checked_size && is_archive_checked_size == 0) {
-        for (var i = 0; i < is_open.length; i++) {
-            // 1 标志是勾选的是否开源
-            if (is_open[i].checked && is_open[i].value == 1) {
-                state = is_open[i].value;
-                // 被选中的复选框的父节点
-                var tddata = is_open[i].parentNode.parentNode.parentNode;
-                // 遍历父节点下所有的字节点td的值
-                $(tddata).find("td").each(function () {
-                    content += this.innerHTML + "/";
-                });
-                content += "--"
-            }
-        }
-    }
-
-
-    console.log(content);
     // "",null,undefined
     if (!$.trim(content)) {
         layer.alert("请选择要保存的文件！", {icon: 2});
@@ -141,20 +138,6 @@ function add() {
     var split = content.split("--");
     var json = "";
     var path;
-    /*
-     * Python27/bz2.pyd/Python27/DLLs/bz2.pyd
-     * /<label class="btn btn-primary btn-sm ">
-     *     <input type="checkbox" name="is_open" value="1"> 开源 </label>
-     * <label class="btn btn-warning btn-sm hidden">
-     *         <input type="checkbox" name="is_archive" value="2"> 归档
-     * </label> /
-     * Python27/bz2.pyd/Python27/DLLs/bz2.pyd
-     * /<label class="btn btn-primary btn-sm ">
-     *     <input type="checkbox" name="is_open" value="1"> 开源 </label>
-     * <label class="btn btn-warning btn-sm hidden">
-     *     <input type="checkbox" name="is_archive" value="2"> 归档
-     * </label> /
-     */
     for (var i = 0; i < split.length - 1; i++) {
         path = split[i].substr(0, split[i].indexOf("/<"));
         json += path + "/" + state + ",";
@@ -180,7 +163,8 @@ function add() {
  * 全选择
  */
 function checkAll() {
-    var code_Values = document.all['is_open'];
+    var attr = $(":checkbox:not(:hidden)").attr("name");
+    var code_Values = document.all[attr];
     if (code_Values.length) {
         for (var i = 0; i < code_Values.length; i++) {
             code_Values[i].checked = true;
@@ -188,13 +172,14 @@ function checkAll() {
     } else {
         code_Values.checked = true;
     }
-    $("#sp").hide();
-    $("#sp0").show();
+    $("#sp").hide();    // 全选
+    $("#sp0").show();   // 取消全选
 }
 
-//全不
+//全不选
 function selectNone() {
-    var code_Values = document.all['is_open'];
+    var attr = $(":checkbox:not(:hidden)").attr("name");
+    var code_Values = document.all[attr];
     if (code_Values.length) {
         for (var i = 0; i < code_Values.length; i++) {
             code_Values[i].checked = false;
@@ -202,8 +187,8 @@ function selectNone() {
     } else {
         code_Values.checked = false;
     }
-    $("#sp").show();
-    $("#sp0").hide();
+    $("#sp").show();    // 全选
+    $("#sp0").hide();   // 取消全选
 }
 
 
@@ -232,7 +217,7 @@ function dbLoad(state) {
                 singleSelect: false, // 设置为true将禁止多选
                 // contentType : "application/x-www-form-urlencoded",
                 // //发送到服务器的数据编码类型
-                pageSize: 10, // 如果设置了分页，每页数据条数
+                pageSize: 20, // 如果设置了分页，每页数据条数
                 pageNumber: 1, // 如果设置了分页，首页页码
                 //search : true, // 是否显示搜索框
                 showColumns: false, // 是否显示内容下拉框（选择显示的列）
@@ -240,8 +225,8 @@ function dbLoad(state) {
                 queryParams: function (params) {
                     return {
                         //说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
-                        limit: params.limit, //找多少条
-                        offset: params.offset, //从数据库第几条记录开始
+                        limit: params.limit, // 页面大小 0  10  20
+                        offset: params.offset, // 页码   10 10  10
                         state: state
                         // name:$('#searchName').val(),
                         // username:$('#searchName').val()
@@ -283,24 +268,4 @@ function dbLoad(state) {
                     }
                 ]
             });
-}
-
-
-/**
- *  已归档
- */
-function archived() {
-    dbLoad(2);
-    // 设置保存按钮，选择所有按钮可见
-    $("#pull_left").hide();
-    $("#sp").hide();
-}
-
-/**
- * 已开源
- */
-function open_source() {
-    dbLoad(1);
-    $("#pull_left").hide();
-    $("#sp").hide();
 }

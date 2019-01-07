@@ -107,7 +107,7 @@ public class TProjectDO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof TProjectDO)) return false;
         TProjectDO projectDO = (TProjectDO) o;
         return Objects.equals(id, projectDO.id) &&
                 Objects.equals(proName, projectDO.proName) &&
@@ -130,6 +130,7 @@ public class TProjectDO implements Serializable {
                 ", path='" + path + '\'' +
                 ", remark='" + remark + '\'' +
                 ", fileName='" + fileName + '\'' +
+                ", state='" + state + '\'' +
                 '}';
     }
 }

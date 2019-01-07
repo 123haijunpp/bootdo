@@ -3,11 +3,12 @@ package com.xd.archiveCheck.utils;
 import com.alibaba.fastjson.JSONObject;
 import com.xd.archiveCheck.domain.TProjectDO;
 import com.xd.common.util.SendApiconfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 提供给archiveCheck中的Controller用
@@ -47,7 +48,6 @@ public class ArchiveCheckUtils {
             projectDO.setProName(proName);
             projectDO.setFileName(fileName);
             projectDO.setPath(proName + "/" + filePath);
-            projectDO.setState("1");// 1 用来给bootStart table判断的，用来设置复选框
             projectAll.add(projectDO);
         }
         return projectAll;
@@ -59,7 +59,7 @@ public class ArchiveCheckUtils {
      *
      * @return
      */
-    public int getStrCount(String str, String regStr) {
+    private int getStrCount(String str, String regStr) {
         int count = 0;
         for (int i = 0; i < str.length(); i++) {
             if (String.valueOf(str.charAt(i)).equals(regStr)) {
@@ -75,10 +75,46 @@ public class ArchiveCheckUtils {
      * @param data
      * @return
      */
-    public String[] dataSplit(String data) {
+    private String[] dataSplit(String data) {
         String subFile = data.substring(1, data.length() - 1);
         String[] file = subFile.split(",");
         return file;
+    }
+
+    /**
+     * 两个List不管有多少个重复，只要重复的元素在两个List都能找到，则不应该包含在返回值里面，所以在做第二次循环时，这样判断：
+     * 如果当前元素在map中找不到，则肯定需要添加到返回值中，如果能找到则value++，遍历完之后diff里面已经包含了只在list2里而没在list2里的元素，
+     * 剩下的工作就是找到list1里有list2里没有的元素，遍历map取value为1的即可：
+     *
+     * @param projectAll
+     * @param existsAll
+     * @return
+     */
+    public static List<TProjectDO> getDifferent(List<TProjectDO> projectAll, List<TProjectDO> existsAll) {
+        List<TProjectDO> diff = new ArrayList<>();
+        List<TProjectDO> maxList = projectAll;
+        List<TProjectDO> minList = existsAll;
+        if (projectAll.size() > existsAll.size()) {
+            maxList = existsAll;
+            minList = projectAll;
+        }
+        Map<TProjectDO, Integer> map = new HashMap<>(maxList.size());
+        for (TProjectDO pro : maxList) {
+            map.put(pro, 1);
+        }
+        for (TProjectDO pro : minList) {
+            if (map.get(pro) != null) {
+                map.put(pro, 2);
+                continue;
+            }
+            diff.add(pro);
+        }
+        for (Map.Entry<TProjectDO, Integer> entry : map.entrySet()) {
+            if (entry.getValue() == 1) {
+                diff.add(entry.getKey());
+            }
+        }
+        return diff;
     }
 
 }

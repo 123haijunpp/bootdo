@@ -27,36 +27,25 @@
                         <span id="sp0" hidden="hidden">
                         <button type="button" class="btn  btn-primary" id="selectNone"
                                 onclick="selectNone()">
-                            全不选
+                            取消
                         </button>
                         </span>
                         <span id="sp1" hidden="hidden">
-                        <button type="button" class="btn  btn-primary"
-                                onclick="archived()">
-                            已归档
-                        </button>
-                        </span>
-                        <span id="sp2" hidden="hidden">
-                        <button type="button"
-                                class="btn  btn-danger"
-                                onclick="open_source()">
-                            已开源
-                        </button>
+                            <select id="state" class="selectpicker">
+                            </select>
                         </span>
                     </div>
                     <div class="columns pull-right">
                         <button class="btn btn-success" onclick="load()">扫描</button>
                     </div>
                     <div class="columns pull-right col-md-2 nopadding">
-                        <!--请输入要扫描的路径：-->
-                        <input id="searchName" type="text" class="form-control"
+                        <!-- 请输入要扫描的路径：-->
+                        <input id="scanName" type="text" class="form-control"
                                placeholder="请输入要扫描的路径...">
                     </div>
                 </div>
-                <form>
-                    <table id="exampleTable" data-mobile-responsive="true">
-                    </table>
-                </form>
+                <table id="exampleTable" data-mobile-responsive="true">
+                </table>
             </div>
         </div>
     </div>

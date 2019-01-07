@@ -60,7 +60,7 @@ public class TProjectController {
     @GetMapping(value = {"/listArchiveCheck"})
     @ResponseBody
     JSONObject listArchiveCheck(@RequestParam("path") String path) throws UnsupportedEncodingException {
-        // 将路径中的\ 替换为 \\ 便于后台解析
+        // 将路径中的 \ 替换为 \\ 便于python端解析
         path = path.replace("\\", "\\\\");
         Map<String, Object> params = new HashMap<>(16);
         ArchiveCheckUtils utils = new ArchiveCheckUtils();
@@ -68,14 +68,19 @@ public class TProjectController {
         JSONObject postData = new JSONObject();
         postData.put("code", "scan_001");
         postData.put("params", params);
+        // 所有扫描出来的文件
         List<TProjectDO> projectAll = utils.postGetFile(postData, sendApiconfig);
 
-//        JSONObject postData1 = new JSONObject();
-//        postData1.put("code", "scan_004");
-//        postData1.put("params", params);
-//        JSONObject postJsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
-//        String data = postJsonData.get("data").toString();
-//        List<TProjectDO> existsAll = JSONArray.parseArray(data, TProjectDO.class);
+        JSONObject postData1 = new JSONObject();
+        postData1.put("code", "scan_004");
+        postData1.put("params", params);
+        JSONObject postJsonData = JSONObject.parseObject(sendApiconfig.getPython(postData1));
+        String data = postJsonData.get("data").toString();
+        // 数据库已经存在的文件
+        List<TProjectDO> existsAll = JSONArray.parseArray(data, TProjectDO.class);
+
+        // 找两个list的交集
+        boolean flag = projectAll.removeAll(existsAll);
 
         // 响应到客户端
         JSONObject jsonData = new JSONObject();
@@ -147,14 +152,11 @@ public class TProjectController {
     @ResponseBody
     JSONObject openSourceList(@RequestParam Map<String, Object> params, HttpServletRequest request) throws
             UnsupportedEncodingException {
-        System.out.println(params.get("offset") + "....." + params.get("limit") + "....." + params.get("state"));
-
-        params.put("page", Integer.valueOf((String) params.get("offset")) + 1);
-        params.put("per_page", params.get("limit"));
-
+        //查询列表数据
+        Query query = new Query(params);
         JSONObject postData = new JSONObject();
         postData.put("code", "scan_003");
-        postData.put("params", com.alibaba.druid.support.json.JSONUtils.toJSONString(params));
+        postData.put("params", com.alibaba.druid.support.json.JSONUtils.toJSONString(query));
 
         JSONObject jsonObject = JSONObject.parseObject(sendApiconfig.getPython(postData));
         String data = jsonObject.get("data").toString();
